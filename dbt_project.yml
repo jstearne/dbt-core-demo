@@ -4,6 +4,11 @@ config-version: 2
 
 profile: 'prgx_dbt_models'
 
+quoting:
+  database: true
+  schema: true
+  identifier: true
+
 model-paths: ["models"]
 analysis-paths: ["analyses"]
 test-paths: ["tests"]
