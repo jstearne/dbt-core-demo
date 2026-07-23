@@ -1,0 +1,50 @@
+version: 2
+
+sources:
+  - name: prgx_salesforce
+    database: "{{ target.database }}"   # adjust if PRGX lands in a dedicated DB
+    schema: prgx_salesforce
+    tables:
+      - name: opportunity
+      - name: order
+      - name: bill_com_invoice_c
+
+  - name: prgx_netsuite
+    database: "{{ target.database }}"
+    schema: prgx_netsuite
+    tables:
+      - name: account
+      - name: contact
+      - name: customer
+      - name: purchaseorder
+      - name: salesorder
+
+  - name: prgx_oracle_financial_services
+    database: "{{ target.database }}"
+    schema: prgx_oracle_financial_services
+    tables:
+      - name: loan
+      - name: predict_term_deposit
+
+  - name: prgx_oracle_retail
+    database: "{{ target.database }}"
+    schema: prgx_oracle_retail
+    tables:
+      - name: avocado_prices
+      - name: superstore_sales
+      - name: walmart
+
+  - name: prgx_mssql_sales
+    database: "{{ target.database }}"
+    schema: prgx_mssql_sales
+    tables:
+      - name: region
+      - name: ad_events
+      - name: sales_data_sample
+      - name: sales_data_sample_copy
+
+  - name: prgx_mssql_finserv_td
+    database: "{{ target.database }}"
+    schema: prgx_mssql_finserv_td
+    tables:
+      - name: predict_term_deposit
