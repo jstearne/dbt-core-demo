@@ -13,7 +13,7 @@ with duplicate_invoices as (
     -- Same account + same amount + same calendar month = likely a duplicate AP payment.
     -- Every occurrence after the first for a given (account, amount, month) is the recoverable one.
     select
-        account__c                          as entity_id,
+        account_lookup_c                    as entity_id,
         id                                   as source_record_id,
         amount__c                            as amount_recoverable,
         invoice_date__c                      as detected_date,
@@ -25,7 +25,7 @@ with duplicate_invoices as (
         select
             *,
             row_number() over (
-                partition by account__c, amount__c, date_trunc('month', invoice_date__c)
+                partition by account_lookup_c, amount__c, date_trunc('month', invoice_date__c)
                 order by invoice_date__c
             ) as occurrence_rank
         from {{ source('prgx_salesforce', 'bill_com_invoice_c') }}
