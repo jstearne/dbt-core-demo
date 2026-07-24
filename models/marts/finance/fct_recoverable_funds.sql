@@ -36,19 +36,19 @@ with duplicate_invoices as (
 
 aged_receivables as (
 
-    -- NetSuite's standard customer.balance field is the amount currently owed by that customer —
-    -- straightforward uncollected AR, aged past a threshold worth chasing.
+    -- NetSuite's overduebalancesearch field is the aged/past-due portion of the customer's
+    -- balance — straightforward uncollected AR, aged past a threshold worth chasing.
     select
         id                                   as entity_id,
         id                                    as source_record_id,
-        balance                               as amount_recoverable,
+        overduebalancesearch                  as amount_recoverable,
         cast(null as date)                    as detected_date,
         'netsuite_customer'                   as source_system,
         'OUTSTANDING_RECEIVABLE'              as recovery_type,
         'Customer carries an open, uncollected balance' as detected_reason
 
     from {{ source('prgx_netsuite', 'customer') }}
-    where balance > 0
+    where overduebalancesearch > 0
 
 ),
 
