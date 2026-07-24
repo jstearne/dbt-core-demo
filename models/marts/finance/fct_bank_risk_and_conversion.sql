@@ -14,7 +14,7 @@ with term_deposit_mssql as (
         job,
         marital,
         education,
-        c_default       as in_default,
+        "DEFAULT"       as in_default,
         balance,
         housing         as has_housing_loan,
         loan            as has_personal_loan,
