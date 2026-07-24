@@ -7,8 +7,8 @@
 with sfdc_opportunities as (
 
     select
-        id                      as source_record_id,
-        account_id              as account_id,
+        id::varchar             as source_record_id,
+        account_id::varchar     as account_id,
         name                    as record_name,
         stage_name              as status,
         amount                  as amount,
@@ -25,8 +25,8 @@ with sfdc_opportunities as (
 sfdc_orders as (
 
     select
-        id                      as source_record_id,
-        account_id              as account_id,
+        id::varchar             as source_record_id,
+        account_id::varchar     as account_id,
         order_number            as record_name,
         status                  as status,
         total_amount            as amount,
@@ -43,8 +43,8 @@ sfdc_orders as (
 netsuite_sales_orders as (
 
     select
-        id                      as source_record_id,
-        entity                  as account_id,
+        id::varchar             as source_record_id,
+        entity::varchar         as account_id,
         tranid                  as record_name,
         status                  as status,
         total                   as amount,
