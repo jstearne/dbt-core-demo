@@ -1,12 +1,10 @@
--- Recovery-audit style view: surfaces money that could plausibly be recaptured, using three
--- independent detection methods across the connected sources. This mirrors the classic AP/AR
--- "recovery audit" playbook (duplicate-payment detection, aged AR, and margin-leakage review) —
--- it's a detection/flagging layer, not a source of truth; every row should be manually reviewed
--- before any action is taken on it.
+-- Recovery-audit style view: surfaces money that could plausibly be recaptured, using two
+-- independent detection methods across the connected sources (duplicate-payment detection
+-- and aged AR). It's a detection/flagging layer, not a source of truth; every row should be
+-- manually reviewed before any action is taken on it.
 --
--- NOTE: Bill_com_Invoice__c field names are the typical Bill.com-managed-package defaults —
--- verify against your actual synced columns and adjust. avocado_prices / walmart were excluded
--- from the margin-leakage bucket below because neither carries a discount/profit field to key off.
+-- A third method (retail margin-leakage, flagging line items sold at a loss) is defined below
+-- but disabled — see the comment above margin_leakage for why.
 
 with duplicate_invoices as (
 
@@ -52,31 +50,38 @@ aged_receivables as (
 
 ),
 
+-- DISABLED: the synced superstore_sales schema has no profit/discount column at all
+-- (confirmed via information_schema), so margin-leakage detection can't be computed.
+-- Re-enable only if a richer version of this dataset (with profit/discount) is synced.
+-- Column names below are corrected to the real schema (snake_case, no spaces), but
+-- amount_recoverable has no valid source column until a profit/discount field exists.
+{#
 margin_leakage as (
 
     -- Line items sold at a loss (Profit < 0) point to discounting that exceeded policy —
     -- a classic retail recovery-audit signal for margin that should have been protected.
     select
-        "Customer ID"                        as entity_id,
-        "Row ID"::varchar                    as source_record_id,
-        abs("Profit")                        as amount_recoverable,
-        "Order Date"                          as detected_date,
+        customer_id                          as entity_id,
+        row_id::varchar                      as source_record_id,
+        abs(profit)                           as amount_recoverable,
+        order_date                            as detected_date,
         'oracle_superstore_sales'             as source_system,
         'EXCESS_DISCOUNT_MARGIN_LOSS'         as recovery_type,
         'Line item discounted below cost (negative profit)' as detected_reason
 
     from {{ source('prgx_oracle_retail', 'superstore_sales') }}
-    where "Profit" < 0
+    where profit < 0
 
 ),
+#}
 
 unioned as (
 
     select * from duplicate_invoices
     union all
     select * from aged_receivables
-    union all
-    select * from margin_leakage
+    -- union all
+    -- select * from margin_leakage
 
 )
 

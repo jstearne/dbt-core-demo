@@ -8,7 +8,7 @@ with sfdc_opportunities as (
 
     select
         id                      as source_record_id,
-        accountid               as account_id,
+        account_id              as account_id,
         name                    as record_name,
         stagename               as status,
         amount                  as amount,
