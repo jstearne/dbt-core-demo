@@ -26,11 +26,11 @@ sfdc_orders as (
 
     select
         id                      as source_record_id,
-        accountid               as account_id,
-        ordernumber             as record_name,
+        account_id              as account_id,
+        order_number            as record_name,
         status                  as status,
-        totalamount             as amount,
-        effectivedate           as record_date,
+        total_amount            as amount,
+        effective_date          as record_date,
         (status = 'Activated')  as is_won,
         (status in ('Activated','Cancelled'))  as is_closed,
         'salesforce_order'          as source_system,
