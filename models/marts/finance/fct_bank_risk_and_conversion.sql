@@ -2,9 +2,10 @@
 -- SQL Server and Oracle connectors) with the consumer loan-application dataset (Oracle LOAN)
 -- into one bank risk / conversion view: who holds balance, who's carrying loan risk, and who
 -- converted on a term-deposit campaign.
--- NOTE: predict_term_deposit columns are confirmed from the synced SQL Server schema. LOAN
--- columns are the standard Kaggle loan-prediction field set commonly used in this dataset —
--- verify against the actual synced columns and rename below if they differ.
+-- NOTE: predict_term_deposit columns are confirmed from the synced SQL Server/Oracle schemas.
+-- LOAN is the LendingClub public loan dataset (confirmed against synced columns), not the
+-- smaller Kaggle loan-prediction dataset — it has no gender/marital/dependents/education/
+-- self_employed/property_area fields, so those are omitted rather than fabricated.
 
 with term_deposit_mssql as (
 
@@ -76,18 +77,13 @@ term_deposit_deduped as (
 loan_applications as (
 
     select
-        loan_id,
-        gender,
-        married,
-        dependents,
-        education,
-        self_employed,
-        applicantincome,
-        coapplicantincome,
-        loanamount,
-        loan_amount_term,
-        credit_history,
-        property_area,
+        id                                   as loan_id,
+        annual_inc                          as applicant_income,
+        annual_inc_joint                    as coapplicant_income,
+        loan_amnt                           as loan_amount,
+        term                                 as loan_amount_term,
+        delinq_2yrs,
+        pub_rec_bankruptcies,
         loan_status
 
     from {{ source('prgx_oracle_financial_services', 'loan') }}
@@ -105,12 +101,12 @@ select
     td.subscribed_term_deposit,
     td.poutcome                         as prior_campaign_outcome,
     la.loan_id,
-    la.loanamount                       as active_loan_amount,
-    la.credit_history,
+    la.loan_amount                       as active_loan_amount,
     la.loan_status,
     case
         when td.in_default = 'yes' then 'HIGH'
-        when la.loan_status = 'N' and la.credit_history = 0 then 'HIGH'
+        when la.loan_status = 'Charged Off' then 'HIGH'
+        when la.delinq_2yrs > 0 or la.pub_rec_bankruptcies > 0 then 'MEDIUM'
         when td.has_personal_loan = 'yes' and td.balance < 0 then 'MEDIUM'
         else 'LOW'
     end                                   as risk_tier
