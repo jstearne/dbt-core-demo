@@ -15,7 +15,7 @@ with duplicate_invoices as (
     select
         account_lookup_c                    as entity_id,
         id                                   as source_record_id,
-        amount__c                            as amount_recoverable,
+        amount_c                            as amount_recoverable,
         invoice_date__c                      as detected_date,
         'salesforce_bill_com'                as source_system,
         'DUPLICATE_INVOICE_PAYMENT'          as recovery_type,
@@ -25,7 +25,7 @@ with duplicate_invoices as (
         select
             *,
             row_number() over (
-                partition by account_lookup_c, amount__c, date_trunc('month', invoice_date__c)
+                partition by account_lookup_c, amount_c, date_trunc('month', invoice_date__c)
                 order by invoice_date__c
             ) as occurrence_rank
         from {{ source('prgx_salesforce', 'bill_com_invoice_c') }}
