@@ -10,11 +10,11 @@ with sfdc_opportunities as (
         id                      as source_record_id,
         account_id              as account_id,
         name                    as record_name,
-        stagename               as status,
+        stage_name              as status,
         amount                  as amount,
-        closedate               as record_date,
-        iswon                   as is_won,
-        isclosed                as is_closed,
+        close_date              as record_date,
+        is_won                  as is_won,
+        is_closed               as is_closed,
         'salesforce_opportunity'    as source_system,
         'pipeline'                  as record_type
 
